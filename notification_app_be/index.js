@@ -1,10 +1,37 @@
 const express = require("express");
 const cors = require("cors");
+const axios = require("axios");
 const { Log } = require("../logging_middleware/index");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const CREDS = {
+    email: "ss0043@srmist.edu.in",
+    name: "vikrantvel.s.p",
+    rollNo: "ra2311030010243",
+    accessCode: "QkbpxH",
+    clientID: "e3ddda19-407e-4bb8-b922-a36c1e16b8cc",
+    clientSecret: "sMYxTpFvCgBjVnng",
+};
+
+async function getToken() {
+    const res = await axios.post("http://20.207.122.201/evaluation-service/auth", CREDS);
+    return res.data.access_token;
+}
+
+app.get("/campus-notifications", async (req, res) => {
+    try {
+        const token = await getToken();
+        const result = await axios.get("http://20.207.122.201/evaluation-service/notifications", {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        res.json(result.data);
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
 
 let notifications = [];
 
