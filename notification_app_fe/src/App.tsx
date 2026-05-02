@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./App.css";
 
 interface Notification {
   id: string;
@@ -52,70 +53,45 @@ function App() {
     fetchNotifications();
   };
 
+  const unread = notifications.filter((n) => !n.read).length;
+
   return (
-    <div style={{ maxWidth: 700, margin: "40px auto", fontFamily: "Arial, sans-serif", padding: "0 20px" }}>
-      <h1 style={{ color: "#2c3e50" }}>Notification Center</h1>
-
-      <div style={{ background: "#f8f9fa", padding: 20, borderRadius: 8, marginBottom: 30 }}>
-        <h2 style={{ marginTop: 0 }}>Create Notification</h2>
-        <input
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={{ width: "100%", padding: 10, marginBottom: 10, borderRadius: 4, border: "1px solid #ccc", boxSizing: "border-box" }}
-        />
-        <textarea
-          placeholder="Message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={{ width: "100%", padding: 10, marginBottom: 10, borderRadius: 4, border: "1px solid #ccc", boxSizing: "border-box", height: 80 }}
-        />
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          style={{ padding: 10, marginBottom: 10, borderRadius: 4, border: "1px solid #ccc" }}
-        >
-          <option value="info">Info</option>
-          <option value="warning">Warning</option>
-          <option value="error">Error</option>
-          <option value="success">Success</option>
-        </select>
-        <br />
-        <button
-          onClick={createNotification}
-          disabled={loading}
-          style={{ background: "#3498db", color: "white", padding: "10px 20px", border: "none", borderRadius: 4, cursor: "pointer", marginTop: 10 }}
-        >
-          {loading ? "Sending..." : "Send Notification"}
-        </button>
+    <div className="app">
+      <div className="header">
+        <h1>Notifications {unread > 0 && <span className="badge">{unread}</span>}</h1>
+        <p>Manage your notifications in one place</p>
       </div>
-
-      <h2>All Notifications ({notifications.length})</h2>
-      {notifications.length === 0 && <p style={{ color: "#999" }}>No notifications yet.</p>}
+      <div className="form-card">
+        <h2>New Notification</h2>
+        <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <textarea placeholder="Message" value={message} onChange={(e) => setMessage(e.target.value)} />
+        <div className="form-row">
+          <select value={type} onChange={(e) => setType(e.target.value)}>
+            <option value="info">Info</option>
+            <option value="success">Success</option>
+            <option value="warning">Warning</option>
+            <option value="error">Error</option>
+          </select>
+          <button className="btn-primary" onClick={createNotification} disabled={loading}>
+            {loading ? "Sending..." : "Send Notification"}
+          </button>
+        </div>
+      </div>
+      <div className="section-title">All Notifications ({notifications.length})</div>
+      {notifications.length === 0 && <div className="empty">No notifications yet. Create one above!</div>}
       {notifications.map((n) => (
-        <div key={n.id} style={{
-          background: n.read ? "#f0f0f0" : "white",
-          border: `2px solid ${n.type === "error" ? "#e74c3c" : n.type === "warning" ? "#f39c12" : n.type === "success" ? "#2ecc71" : "#3498db"}`,
-          borderRadius: 8, padding: 16, marginBottom: 12
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h3 style={{ margin: 0, color: n.read ? "#999" : "#2c3e50" }}>
-              {n.read ? "✓ " : ""}{n.title}
-            </h3>
-            <span style={{ fontSize: 12, color: "#999" }}>{new Date(n.createdAt).toLocaleString()}</span>
+        <div key={n.id} className={`notification-card type-${n.type} ${n.read ? "read" : ""}`}>
+          <div className="card-header">
+            <span className="card-title">{n.title}</span>
+            <div className="card-meta">
+              <span className="type-pill">{n.type}</span>
+              <span className="card-time">{new Date(n.createdAt).toLocaleTimeString()}</span>
+            </div>
           </div>
-          <p style={{ color: n.read ? "#aaa" : "#555", margin: "8px 0" }}>{n.message}</p>
-          <div style={{ display: "flex", gap: 8 }}>
-            {!n.read && (
-              <button onClick={() => markAsRead(n.id)}
-                style={{ background: "#2ecc71", color: "white", padding: "6px 12px", border: "none", borderRadius: 4, cursor: "pointer" }}>
-                Mark as Read
-              </button>
-            )}
-            <button onClick={() => deleteNotification(n.id)}
-              style={{ background: "#e74c3c", color: "white", padding: "6px 12px", border: "none", borderRadius: 4, cursor: "pointer" }}>
-              Delete
-            </button>
+          <p className="card-message">{n.message}</p>
+          <div className="card-actions">
+            {!n.read && <button className="btn-read" onClick={() => markAsRead(n.id)}>Mark as Read</button>}
+            <button className="btn-delete" onClick={() => deleteNotification(n.id)}>Delete</button>
           </div>
         </div>
       ))}
