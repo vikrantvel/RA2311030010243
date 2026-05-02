@@ -63,3 +63,25 @@ A full-stack notification system that allows users to create, view, mark as read
 - Add user authentication
 - Add pagination for large notification lists
 - Deploy to cloud (AWS/GCP)
+## Stage 1
+
+### Priority Inbox Algorithm
+
+Fetches notifications from the evaluation service API and ranks them by priority.
+
+**Priority Formula:**
+- Weight: Placement = 3, Result = 2, Event = 1
+- Recency Score: `max(0, 1 - ageInHours / 24)` — newer notifications score higher
+- Total Score = Weight + Recency Score
+
+**Approach:**
+1. Fetch all notifications from test server (authenticated)
+2. Score each notification using weight + recency
+3. Sort descending by score
+4. Return top N (default 10)
+
+**Why this works:**
+- Placement notifications always outrank Results and Events
+- Among same-type notifications, newer ones appear first
+- Recency decays over 24 hours, so very old notifications don't dominate
+- Efficient O(n log n) sorting — scales as new notifications arrive
