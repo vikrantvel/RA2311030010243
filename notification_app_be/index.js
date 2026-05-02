@@ -64,7 +64,7 @@ app.delete("/notifications/:id", async (req, res) => {
     res.json({ message: "Deleted successfully" });
 });
 
-const PORT = 5000;
+const PORT = 3001;
 app.listen(PORT, async () => {
     await safeLog("backend", "info", "config", `Server running on port ${PORT}`);
     console.log(`Server running on http://localhost:${PORT}`);
